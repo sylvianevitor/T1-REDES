@@ -14,7 +14,7 @@ s.connect((HOST, PORT))				#estabelece conexao TCP: ip + porta do servidor
 msg = "Funcionou"
 typeOfService = 4  #OBS: Se >65535 mudar stuct.pack('H', ...)
 arg2 = 3
-msg = "coelho branco"
+msg = "df"
 parametro = bytes(msg.encode('utf-8'))
 
 
@@ -31,6 +31,8 @@ conversor = bytes(header)
 # 3 - way handshake acontece por baixo dos panos
 s.sendall(pacoteB) #envia mensagem via clientsocket
 data = s.recv(1024)			#aguarda resposta do servidor e coloca em data
+saida = struct.unpack('255p', data)
 s.close()					#fecha socket e conexao TCP
 print ('Received ')
-print(repr(data))
+result = saida[0].decode('utf-8')
+print(result)
