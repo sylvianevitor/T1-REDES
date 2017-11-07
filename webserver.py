@@ -129,57 +129,47 @@ def novoPacote(daemon, function, identification):
 
     #MONTA PACOTES
     pacote = bytes
-    #pacote = (struct.pack('hhhhhhhhhhhh255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
     pacote = (struct.pack('hhhhhhhhhh255ph255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
 
+
     #3-Way handshake
-    if(daemon==daemon1):
-        daemon1.listen(1)
-        conn, addr = daemon1.accept()
 
-    elif (daemon == daemon2):
-        daemon2.listen(1)
-        conn, addr = daemon2.accept()
+    fail = False
 
-    elif (daemon == daemon3):
-        daemon3.listen(1)
-        conn, addr = daemon3.accept()
+    if(daemon==1):
+        daemon1.sendall(pacote)
+        data = daemon1.recv(225)
+        if not data:
+            fail = True
+        daemon1.close()
+    elif(daemon==2):
+        daemon2.sendall(pacote)
+        data = daemon2.recv(225)
+        if not data:
+            fail = True
+        daemon2.close()
+    elif(daemon==3):
+        daemon3.sendall(pacote)
+        data = daemon3.recv(225)
+        if not data:
+            fail = True
+        daemon3.close()
 
-    while 1:
-        if(daemon==1):
-            daemon1.sendall(pacote)
-            data = daemon1.recv(1024)
-            if not data: break
-            daemon1.close()
-        elif(daemon==2):
-            daemon2.sendall(pacote)
-            data = daemon2.recv(1024)
-            if not data: break
-            daemon2.close()
-        elif(daemon==3):
-            daemon3.sendall(pacote)
-            data = daemon3.recv(1024)
-            if not data: break
-            daemon3.close()
-
-        #ANALISE DE RESPOSTA
-
+    #ANALISE DE RESPOSTA
+    if not fail:
         resposta = bytes
         resposta = struct.unpack('225p', data)
 
         print(resposta[0].decode('utf-8'))
 
-    conn.close()
 
-
-cbxM1PS = 1;
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
     print(' Opcao PS da M1 selecionada: ')
     novoPacote(1,1,11)
 
-if(cbxM1LD):
+if(cbxM1DF):
     print(' Opcao LD da M1 selecionada: ')
     novoPacote(1,2,12)
 
@@ -197,7 +187,7 @@ if(cbxM2PS):
     print(' Opcao PS da M2 selecionada: ')
     novoPacote(2,1,21)
 
-if(cbxM2LD):
+if(cbxM2DF):
     print(' Opcao LD da M2 selecionada: ')
     novoPacote(2,2,22)
 
@@ -216,7 +206,7 @@ if(cbxM3PS):
     print(' Opcao PS da M3 selecionada: ')
     novoPacote(3,1,31)
 
-if(cbxM3LD):
+if(cbxM3DF):
     print(' Opcao LD da M3 selecionada: ')
     novoPacote(3,2,32)
 
@@ -227,4 +217,3 @@ if(cbxM3FINGER):
 if(cbxM3UPTIME):
     print(' Opcao UPTIME da M3 selecionada: ')
     novoPacote(3,4,34)
-
