@@ -7,7 +7,7 @@ import io
 
 
 HOST = ''                 # Qualquer host
-PORT = 50007              # Porta arbitraria
+PORT = 9001              # Porta arbitraria
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #cria welcomesocket IPV4, TCP
 s.bind((HOST, PORT))	  # Aguarda requisicao na welcome socket
 # conexaco TCP estabelecida
@@ -22,10 +22,10 @@ while 1:
 
     # Descompacta cabecalho 
     pacote =bytes
-    pacote = struct.unpack('hh255p', data)
+    pacote = struct.unpack('hhhhhhhhhh255ph255p', data)
     print(pacote)
 			
-    cmd = pacote[2].decode('utf-8') #Comando a ser executado
+    cmd = pacote[12].decode('utf-8') #Comando a ser executado
 
     if 'ps' in cmd:
     	print('Vai executar comando ps')
