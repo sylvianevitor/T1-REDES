@@ -9,6 +9,11 @@ from struct import *
 import io
 
 #cgitb.enable()
+print("Content-Type: text/html;charset=utf-8\r\n\r\n")
+
+#Cria instancia de FieldStorage
+form = cgi.FieldStorage()
+
 
 #Cadastro dos daemons
 HOSTD = '127.0.0.1'
@@ -24,13 +29,7 @@ daemon1.connect((HOSTD, P1))
 daemon2.connect((HOSTD, P2))
 daemon3.connect((HOSTD, P3))
 
-print("Content-Type: text/html;charset=utf-8\r\n\r\n")
-#print('<meta chatset=\"utf-8\">')
-
 print("webserver.py")
-
-#Cria instancia de FieldStorage
-form = cgi.FieldStorage()
 
 #Get data from fields
 #ATRIBUTOS DA MAQUINA 1
