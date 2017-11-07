@@ -34,7 +34,7 @@ form = cgi.FieldStorage()
 
 #Get data from fields
 #ATRIBUTOS DA MAQUINA 1
-#cbxM1PS = form.getvalue('maq1_ps')
+cbxM1PS = form.getvalue('maq1_ps')
 cbxM1DF = form.getvalue('maq1_df')
 cbxM1FINGER = form.getvalue('maq1_finger')
 cbxM1UPTIME = form.getvalue('maq1_uptime')
