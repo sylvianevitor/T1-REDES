@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #!/usr/bin/python
 import cgitb
 import cgi
@@ -21,9 +20,9 @@ daemon1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-#daemon1.connect((HOSTD, P1))
-#daemon2.connect((HOSTD, P2))
-#daemon3.connect((HOSTD, P3))
+daemon1.connect((HOSTD, P1))
+daemon2.connect((HOSTD, P2))
+daemon3.connect((HOSTD, P3))
 
 print("Content-Type: text/html;charset=utf-8\r\n\r\n")
 #print('<meta chatset=\"utf-8\">')
@@ -54,105 +53,178 @@ cbxM3UPTIME = form.getvalue('maq3_uptime')
 
 
 #Set default fix values
-version = 2
-typeOfService = 0
-flags = 0
-fragmentOffset = 0
-timeToLive = 1
-sourceAdress = HOSTD
-global protocol
-global options
-global identification
+vers = 2
+ihl = 160
+tSv = 0
+fl = 0
+fgoff = 0
+time = 1
+srcAd = bytes(HOSTD.encode('utf-8'))
+hCheck = 0    # IMPLEMENTAR
+global dAdrss
+global prot
+global opt
+global id
+global tam
 
+def novoPacote(daemon, function, identification):
+    global prot
+    prot = function
 
-def novoPacote(function, daemon, id):
+    global id
+    id = identification
 
-    global protocol
-    protocol = function
-
-    global identification
-    identification = id
+    global totalLength
+    global dAd
 
     if (function == 1):  # PS
         if (daemon == 1):
-            destinationAddress = P1
-            #msg = form.getvalue('maq1-ps')
-            msg = "hello"
+            dAd = P1
+            msg = form.getvalue('maq1-ps')
         elif (daemon == 2):
-            destinationAddress = P2
+            dAd = P2
             msg = form.getvalue('maq2-ps')
         elif (daemon == 3):
-            destinationAddress = P3
+            dAd = P3
             msg = form.getvalue('maq3-ps')
+
 
     elif (function == 2):  # DF
         if (daemon == 1):
-            destinationAddress = P1
+            dAd = P1
             msg = form.getvalue('maq1-df')
         elif (daemon == 2):
-            destinationAddress = P2
+            dAd = P2
             msg = form.getvalue('maq2-df')
         elif (daemon == 3):
-            destinationAddress = P3
+            dAd = P3
             msg = form.getvalue('maq3-df')
 
     elif (function == 3):  # FINGER
         if (daemon == 1):
-            destinationAddress = P1
+            dAd = P1
             msg = form.getvalue('maq1-finger')
         elif (daemon == 2):
-            destinationAddress = P2
+            dAd = P2
             msg = form.getvalue('maq2-finger')
         elif (daemon == 3):
-            destinationAddress = P3
+            dAd = P3
             msg = form.getvalue('maq3-finger')
 
     elif (function == 4):  # UPTIME
         if (daemon == 1):
-            destinationAddress = P1
+            dAd = P1
             msg = form.getvalue('maq1-uptime')
         elif (daemon == 2):
-            destinationAddress = P2
+            dAd = P2
             msg = form.getvalue('maq2-uptime')
         elif (daemon == 3):
-            destinationAddress = P3
+            dAd = P3
             msg = form.getvalue('maq3-uptime')
 
-    global options
-    options = bytes(msg.encode('utf-8'))
+    global opt
+    opt = bytes(msg.encode('utf-8'))
 
+    tam = len(msg)
 
-    #MONTE PACOTES
+    #MONTA PACOTES
+    pacote = bytes
+    #pacote = (struct.pack('hhhhhhhhhhhh255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
+    pacote = (struct.pack('hhhhhhhhhh255ph255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
 
+    #3-Way handshake
+    if(daemon==daemon1):
+        daemon1.listen(1)
+        conn, addr = daemon1.accept()
 
+    elif (daemon == daemon2):
+        daemon2.listen(1)
+        conn, addr = daemon2.accept()
 
+    elif (daemon == daemon3):
+        daemon3.listen(1)
+        conn, addr = daemon3.accept()
 
+    while 1:
+        if(daemon==1):
+            daemon1.sendall(pacote)
+            data = daemon1.recv(1024)
+            if not data: break
+            daemon1.close()
+        elif(daemon==2):
+            daemon2.sendall(pacote)
+            data = daemon2.recv(1024)
+            if not data: break
+            daemon2.close()
+        elif(daemon==3):
+            daemon3.sendall(pacote)
+            data = daemon3.recv(1024)
+            if not data: break
+            daemon3.close()
+
+        #ANALISE DE RESPOSTA
+
+        resposta = bytes
+        resposta = struct.unpack('225p', data)
+
+        print(resposta[0].decode('utf-8'))
+
+    conn.close()
 
 
 cbxM1PS = 1;
 
+#CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
     print(' Opcao PS da M1 selecionada: ')
     novoPacote(1,1,11)
 
+if(cbxM1LD):
+    print(' Opcao LD da M1 selecionada: ')
+    novoPacote(1,2,12)
+
+if(cbxM1FINGER):
+    print(' Opcao FINGER da M1 selecionada: ')
+    novoPacote(1,3,13)
+
+if(cbxM1UPTIME):
+    print(' Opcao UPTIME da M1 selecionada: ')
+    novoPacote(1,4,14)
+
+
+#CHAMADA DE PROTOCOLOS PARA M2
+if(cbxM2PS):
+    print(' Opcao PS da M2 selecionada: ')
+    novoPacote(2,1,21)
+
+if(cbxM2LD):
+    print(' Opcao LD da M2 selecionada: ')
+    novoPacote(2,2,22)
+
+if(cbxM2FINGER):
+    print(' Opcao FINGER da M2 selecionada: ')
+    novoPacote(2,3,23)
+
+if(cbxM2UPTIME):
+    print(' Opcao UPTIME da M2 selecionada: ')
+    novoPacote(2,4,24)
 
 
 
-=======
-# Echo client program
-import socket
+#CHAMADA DE PROTOCOLOS PARA M3
+if(cbxM3PS):
+    print(' Opcao PS da M3 selecionada: ')
+    novoPacote(3,1,31)
 
-HOST = '192.168.0.109'    # The remote host
-PORT = 50007              # The same port as used by the server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # cria clientsocket
-s.connect((HOST, PORT))				#estabelece conexao TCP: ip + porta do servidor
+if(cbxM3LD):
+    print(' Opcao LD da M3 selecionada: ')
+    novoPacote(3,2,32)
 
-msg = "1"
+if(cbxM3FINGER):
+    print(' Opcao FINGER da M3 selecionada: ')
+    novoPacote(3,3,33)
 
-# 3 - way handshake acontece por baixo dos panos
-s.sendall(bytes(msg.encode('utf-8'))) #envia mensagem via clientsocket
-data = s.recv(1024)			#aguarda resposta do servidor e coloca em data
-s.close()					#fecha socket e conexao TCP
-print ('Received ')
-print(repr(data))
->>>>>>> 79f6fab1cbcd65d1753bb247d02aab1cada19afd
+if(cbxM3UPTIME):
+    print(' Opcao UPTIME da M3 selecionada: ')
+    novoPacote(3,4,34)
+
