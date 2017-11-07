@@ -31,7 +31,7 @@ daemon3.connect((HOSTD, P3))
 
 
 #3-Way handshake
-print("webserver.py")
+print("webserver.py\n")
 
 #Get data from fields
 #ATRIBUTOS DA MAQUINA 1
@@ -69,6 +69,7 @@ global id
 global tam
 
 def novoPacote(daemon, function, identification):
+
     global prot
     prot = function
 
@@ -82,7 +83,6 @@ def novoPacote(daemon, function, identification):
         if (daemon == 1):
             dAd = P1
             msg = form.getvalue('maq1-ps')
-            #msg = "aux"
         elif (daemon == 2):
             dAd = P2
             msg = form.getvalue('maq2-ps')
@@ -125,7 +125,12 @@ def novoPacote(daemon, function, identification):
             msg = form.getvalue('maq3-uptime')
 
     global opt
-    opt = bytes(msg.encode('utf-8'))
+
+    if (msg):
+        opt = bytes(msg.encode('utf-8'))
+    else:
+        msg = '0'
+        opt = bytes(msg.encode('utf-8'))
 
     tam = len(msg)
 
@@ -138,21 +143,20 @@ def novoPacote(daemon, function, identification):
     fail = False
 
     if(daemon==1):
-        #print("vai enviar pact daemon 1")
         daemon1.sendall(pacote)
-        data = daemon1.recv(225)
+        data = daemon1.recv(1024)
         if not data:
             fail = True
         daemon1.close()
     elif(daemon==2):
         daemon2.sendall(pacote)
-        data = daemon2.recv(225)
+        data = daemon2.recv(1024)
         if not data:
             fail = True
         daemon2.close()
     elif(daemon==3):
         daemon3.sendall(pacote)
-        data = daemon3.recv(225)
+        data = daemon3.recv(1024)
         if not data:
             fail = True
         daemon3.close()
@@ -160,62 +164,61 @@ def novoPacote(daemon, function, identification):
     #ANALISE DE RESPOSTA
     if not fail:
         resposta = bytes
-        resposta = struct.unpack('225p', data)
+        resposta = struct.unpack('1024p', data)
 
         print(resposta[0].decode('utf-8'))
 
-#cbxM1PS = 1
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
-    print(' Opcao PS da M1 selecionada: ')
+    print(' Opcao PS da M1 selecionada:\n')
     novoPacote(1,1,11)
 
 if(cbxM1DF):
-    print(' Opcao LD da M1 selecionada: ')
+    print(' Opcao DF da M1 selecionada:\n')
     novoPacote(1,2,12)
 
 if(cbxM1FINGER):
-    print(' Opcao FINGER da M1 selecionada: ')
+    print(' Opcao FINGER da M1 selecionada:\n')
     novoPacote(1,3,13)
 
 if(cbxM1UPTIME):
-    print(' Opcao UPTIME da M1 selecionada: ')
+    print(' Opcao UPTIME da M1 selecionada:\n')
     novoPacote(1,4,14)
 
 
 #CHAMADA DE PROTOCOLOS PARA M2
 if(cbxM2PS):
-    print(' Opcao PS da M2 selecionada: ')
+    print(' Opcao PS da M2 selecionada:\n')
     novoPacote(2,1,21)
 
 if(cbxM2DF):
-    print(' Opcao LD da M2 selecionada: ')
+    print(' Opcao DF da M2 selecionada:\n')
     novoPacote(2,2,22)
 
 if(cbxM2FINGER):
-    print(' Opcao FINGER da M2 selecionada: ')
+    print(' Opcao FINGER da M2 selecionada:\n')
     novoPacote(2,3,23)
 
 if(cbxM2UPTIME):
-    print(' Opcao UPTIME da M2 selecionada: ')
+    print(' Opcao UPTIME da M2 selecionada:\n')
     novoPacote(2,4,24)
 
 
 
 #CHAMADA DE PROTOCOLOS PARA M3
 if(cbxM3PS):
-    print(' Opcao PS da M3 selecionada: ')
+    print(' Opcao PS da M3 selecionada:\n')
     novoPacote(3,1,31)
 
 if(cbxM3DF):
-    print(' Opcao LD da M3 selecionada: ')
+    print(' Opcao DF da M3 selecionada:\n')
     novoPacote(3,2,32)
 
 if(cbxM3FINGER):
-    print(' Opcao FINGER da M3 selecionada: ')
+    print(' Opcao FINGER da M3 selecionada:\n')
     novoPacote(3,3,33)
 
 if(cbxM3UPTIME):
-    print(' Opcao UPTIME da M3 selecionada: ')
+    print(' Opcao UPTIME da M3 selecionada:\n')
     novoPacote(3,4,34)
