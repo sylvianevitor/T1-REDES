@@ -29,6 +29,8 @@ daemon1.connect((HOSTD, P1))
 daemon2.connect((HOSTD, P2))
 daemon3.connect((HOSTD, P3))
 
+
+#3-Way handshake
 print("webserver.py")
 
 #Get data from fields
@@ -80,6 +82,7 @@ def novoPacote(daemon, function, identification):
         if (daemon == 1):
             dAd = P1
             msg = form.getvalue('maq1-ps')
+            #msg = "aux"
         elif (daemon == 2):
             dAd = P2
             msg = form.getvalue('maq2-ps')
@@ -130,12 +133,12 @@ def novoPacote(daemon, function, identification):
     pacote = bytes
     pacote = (struct.pack('hhhhhhhhhh255ph255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
 
-
-    #3-Way handshake
+    #print(pacote)
 
     fail = False
 
     if(daemon==1):
+        #print("vai enviar pact daemon 1")
         daemon1.sendall(pacote)
         data = daemon1.recv(225)
         if not data:
@@ -161,7 +164,7 @@ def novoPacote(daemon, function, identification):
 
         print(resposta[0].decode('utf-8'))
 
-
+#cbxM1PS = 1
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):

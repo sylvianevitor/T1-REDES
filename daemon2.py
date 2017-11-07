@@ -7,11 +7,11 @@ import io
 
 
 HOST = ''                 # Qualquer host
-PORT = 9001              # Porta arbitraria
+PORT = 9002              # Porta arbitraria
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  #cria welcomesocket IPV4, TCP
-s.bind((HOST, PORT))	  # Aguarda requisicao na welcome socket
+s.bind((HOST, PORT))      # Aguarda requisicao na welcome socket
 # conexaco TCP estabelecida
-s.listen(1)				  # Aguarda requisicao na connection socket
+s.listen(1)               # Aguarda requisicao na connection socket
 conn, addr = s.accept()   # Cria connection socket quando recebe requisicao
 print('Connected by ')
 print (addr)
@@ -24,22 +24,22 @@ while 1:
     pacote =bytes
     pacote = struct.unpack('hhhhhhhhhh255ph255p', data)
     print(pacote)
-			
+            
     cmd = pacote[10]
      #Comando a ser executado
 
     if cmd == 1:
-    	print('Vai executar comando ps')
-    	var = "ps"                 #comando a ser executado
-        arg = pacote[12].decode('utf-8') #opcoes de execucao
+        print('Vai executar comando ps')
+        var = "ps"
+        arg = pacote[12].decode('utf-8')         #opcoes de execucao                
         var = var + arg #concatena comando e opcoes
     elif cmd == 2:
-    	print('Vai executar comando df')
+        print('Vai executar comando df')
     elif cmd == 3:
-    	print('Vai executar comando uptime')
+        print('Vai executar comando uptime')
  
    #elif 'finger' in cmd:
-   # 	printf('Vai executar comando finger')
+   #    printf('Vai executar comando finger')
 
     proc = subprocess.Popen(var, stdout=subprocess.PIPE, shell=True)  #cria subprocesso para executar comando
     (saida, err) = proc.communicate()  #redireciona saida 
@@ -49,5 +49,5 @@ while 1:
     print(saida)
     
 
-    conn.sendall(pacoteB)		# Envia resposta, resultado da execucao
-conn.close()				# Fecha socket e conexao TCP
+    conn.sendall(pacoteB)       # Envia resposta, resultado da execucao
+conn.close()                # Fecha socket e conexao TCP

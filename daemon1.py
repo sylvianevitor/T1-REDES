@@ -25,14 +25,16 @@ while 1:
     pacote = struct.unpack('hhhhhhhhhh255ph255p', data)
     print(pacote)
 			
-    cmd = pacote[10]
+    cmd = pacote[8]
+    print(cmd)
      #Comando a ser executado
 
     if cmd == 1:
-    	print('Vai executar comando ps')
-    	var = "ps"                 #comando a ser executado
-        arg = pacote[12].decode('utf-8') #opcoes de execucao
-        var = var + arg #concatena comando e opcoes
+        print('Vai executar comando ps')
+        var = "ps"
+        arg = pacote[12].decode('utf-8')         #opcoes de execucao                
+        var = var + ' ' + arg #concatena comando e opcoes
+        print(var)
     elif cmd == 2:
     	print('Vai executar comando df')
     elif cmd == 3:
