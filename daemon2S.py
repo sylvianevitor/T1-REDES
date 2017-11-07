@@ -54,7 +54,7 @@ while 1:
     (saida, err) = proc.communicate()  # redireciona saida
 
     pacoteB = bytes
-    pacoteB = (struct.pack('255p', saida))  # Monta pacote de volta
+    pacoteB = (struct.pack('1024p', saida))  # Monta pacote de volta
     print(saida)
 
     conn.sendall(pacoteB)  # Envia resposta, resultado da execucao
