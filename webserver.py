@@ -17,17 +17,17 @@ form = cgi.FieldStorage()
 
 #Cadastro dos daemons
 HOSTD = '127.0.0.1'
-P1 = 9001
-P2 = 9002
-P3 = 9003
+P1 = '8001'
+P2 = '8002'
+P3 = '8003'
 
 daemon1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-daemon1.connect((HOSTD, P1))
-daemon2.connect((HOSTD, P2))
-daemon3.connect((HOSTD, P3))
+daemon1.connect((HOSTD, int(P1)))
+daemon2.connect((HOSTD, int(P2)))
+daemon3.connect((HOSTD, int(P3)))
 
 
 #3-Way handshake
@@ -68,6 +68,13 @@ global opt
 global id
 global tam
 
+
+def pureAdd(x):
+    c = "."
+    for i in range(0,len(x)):
+        if x[i] == c:
+            x.replace(x[i],"")  #retira . 
+
 def novoPacote(daemon, function, identification):
 
     global prot
@@ -82,7 +89,8 @@ def novoPacote(daemon, function, identification):
     if (function == 1):  # PS
         if (daemon == 1):
             dAd = P1
-            msg = form.getvalue('maq1-ps')
+            msg = "aux"
+            #msg = form.getvalue('maq1-ps')
         elif (daemon == 2):
             dAd = P2
             msg = form.getvalue('maq2-ps')
@@ -126,49 +134,53 @@ def novoPacote(daemon, function, identification):
 
     global opt
 
+    dest = bytes(dAd.encode('utf-8'))
+
     if (msg):
         opt = bytes(msg.encode('utf-8'))
     else:
         msg = '0'
         opt = bytes(msg.encode('utf-8'))
 
-    tam = len(msg)
+    tam = len(msg)  #implementar
 
     #MONTA PACOTES
     pacote = bytes
-    pacote = (struct.pack('hhhhhhhhhh255ph255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt))
+    pacote = (struct.pack('hhhhhhhhhh255p255p255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dest, opt))
 
-    #print(pacote)
-
-    fail = False
+    resultado = ''
+    resposta = bytes
 
     if(daemon==1):
         daemon1.sendall(pacote)
-        data = daemon1.recv(1024)
-        if not data:
-            fail = True
+        while 1: 
+            data = daemon1.recv(787)
+            if not data: break 
+            resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            resultado = resultado + resposta[13].decode('utf-8')
         daemon1.close()
+
     elif(daemon==2):
         daemon2.sendall(pacote)
-        data = daemon2.recv(1024)
-        if not data:
-            fail = True
+        while 1: 
+            data = daemon2.recv(1024)
+            if not data: break 
+            resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            resultado = resultado + resposta[13].decode('utf-8')
         daemon2.close()
+
     elif(daemon==3):
         daemon3.sendall(pacote)
-        data = daemon3.recv(1024)
-        if not data:
-            fail = True
+        while 1: 
+            data = daemon3.recv(1024)
+            if not data: break 
+            resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            resultado = resultado + resposta[13].decode('utf-8')
         daemon3.close()
 
-    #ANALISE DE RESPOSTA
-    if not fail:
-        resposta = bytes
-        resposta = struct.unpack('1024p', data)
+    print(resultado)
 
-        print(resposta[0].decode('utf-8'))
-
-
+cbxM1PS = 1
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
     print(' Opcao PS da M1 selecionada:\n')
@@ -203,8 +215,6 @@ if(cbxM2FINGER):
 if(cbxM2UPTIME):
     print(' Opcao UPTIME da M2 selecionada:\n')
     novoPacote(2,4,24)
-
-
 
 #CHAMADA DE PROTOCOLOS PARA M3
 if(cbxM3PS):
