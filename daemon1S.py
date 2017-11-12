@@ -21,7 +21,7 @@ print(addr)
 
 while 1:
     #RECEBIMENTO DE PACOTE
-    data = conn.recv(1024)  # Recebe mensagem na connection socket
+    data = conn.recv(785)  # Recebe mensagem na connection socket
     if not data: break
 
     #DESCOMPACTACAO DO CABECALHO 
@@ -62,7 +62,7 @@ while 1:
     ihl = pacote[1]
     tsV = pacote[2]
     tam = pacote[3]  #tamanho total do pacote
-    id = pacote[4]
+    idt = pacote[4]
     fl = 1 #resposta
     fgoff = pacote[6]
     time = pacote[7] - 1 #decrementa ttl
@@ -77,7 +77,7 @@ while 1:
     for i in range (0,qtd + 1):
         payld = saida[:255]
         saida = saida[255:len(saida)]
-        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
+        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, idt, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
         print(payld)
         print ("\n\n")
         conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    

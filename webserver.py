@@ -54,7 +54,7 @@ cbxM3UPTIME = form.getvalue('maq3_uptime')
 
 #Set default fix values
 vers = 2
-ihl = 160
+ihl = 530
 tSv = 0
 fl = 0
 fgoff = 0
@@ -64,7 +64,7 @@ hCheck = 0    # IMPLEMENTAR
 global dAdrss
 global prot
 global opt
-global id
+global idt
 global tam
 
 
@@ -79,8 +79,8 @@ def novoPacote(daemon, function, identification):
     global prot
     prot = function
 
-    global id
-    id = identification
+    global idt
+    idt = identification
 
     global totalLength
     global dAd
@@ -144,7 +144,7 @@ def novoPacote(daemon, function, identification):
 
     #MONTA PACOTES
     pacote = bytes
-    pacote = (struct.pack('hhhhhhhhhh255p255p255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dest, opt))
+    pacote = (struct.pack('hhhhhhhhhh255p255p255p', vers, ihl, tSv, tam, idt, fl, fgoff, time, prot, hCheck, srcAd, dest, opt))
 
     resultado = ''
     resposta = bytes
@@ -155,22 +155,25 @@ def novoPacote(daemon, function, identification):
             data = daemon1.recv(787)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if resposta[4] != idt: break #verificacao do id
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
     elif(daemon==2):
         daemon2.sendall(pacote)
         while 1: 
-            data = daemon2.recv(1024)
+            data = daemon2.recv(787)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if resposta[4] != idt: break #verificacao do id
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
     elif(daemon==3):
         daemon3.sendall(pacote)
         while 1: 
-            data = daemon3.recv(1024)
+            data = daemon3.recv(787)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if resposta[4] != idt: break   #verificacao do id
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
     print(resultado)
