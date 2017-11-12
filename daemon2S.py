@@ -63,7 +63,7 @@ while 1:
     tsV = pacote[2]
     tam = pacote[3]  #tamanho total do pacote
     idt = pacote[4]
-    fl = 1 #resposta
+    fl = 111 #resposta
     fgoff = pacote[6]
     time = pacote[7] - 1 #decrementa ttl
     prot = pacote[8]
