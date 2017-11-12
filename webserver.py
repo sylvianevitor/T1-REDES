@@ -176,11 +176,17 @@ def novoPacote(daemon, function, identification):
             if resposta[4] != idt: break   #verificacao do id
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
-    print(resultado)
+
+    # mostrar bonito
+    show = resultado.split("\n")
+    for i in range (0, len(show)):
+        print (show[i]) <br />
+
+    #print(resultado)
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
-    print(' Opcao PS da M1 selecionada:\n')
+    print(' Opcao PS da M1 selecionada:') <br />
     novoPacote(1,1,11)
 
 if(cbxM1DF):
