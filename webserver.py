@@ -14,7 +14,6 @@ print("Content-Type: text/html;charset=utf-8\r\n\r\n")
 #Cria instancia de FieldStorage
 form = cgi.FieldStorage()
 
-
 #Cadastro dos daemons
 HOSTD = '127.0.0.1'
 P1 = '8001'
@@ -89,8 +88,7 @@ def novoPacote(daemon, function, identification):
     if (function == 1):  # PS
         if (daemon == 1):
             dAd = P1
-            msg = "aux"
-            #msg = form.getvalue('maq1-ps')
+            msg = form.getvalue('maq1-ps')
         elif (daemon == 2):
             dAd = P2
             msg = form.getvalue('maq2-ps')
@@ -157,30 +155,26 @@ def novoPacote(daemon, function, identification):
             data = daemon1.recv(787)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
-        daemon1.close()
-
     elif(daemon==2):
         daemon2.sendall(pacote)
         while 1: 
             data = daemon2.recv(1024)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
-        daemon2.close()
-
     elif(daemon==3):
         daemon3.sendall(pacote)
         while 1: 
             data = daemon3.recv(1024)
             if not data: break 
             resposta = struct.unpack('hhhhhhhhhh255p255ph255p', data)
+            if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
-        daemon3.close()
-
     print(resultado)
 
-cbxM1PS = 1
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
     print(' Opcao PS da M1 selecionada:\n')
@@ -232,3 +226,7 @@ if(cbxM3FINGER):
 if(cbxM3UPTIME):
     print(' Opcao UPTIME da M3 selecionada:\n')
     novoPacote(3,4,34)
+
+daemon1.close()
+daemon2.close()
+daemon3.close()

@@ -64,6 +64,7 @@ while 1:
     tam = pacote[3]  #tamanho total do pacote
     id = pacote[4]
     fl = 1 #resposta
+    fgoff = pacote[6]
     time = pacote[7] - 1 #decrementa ttl
     prot = pacote[8]
     hCheck = pacote[9]
@@ -74,9 +75,11 @@ while 1:
 
     #ENVIAR PACOTES COM PEDACOS DO DADO 
     for i in range (0,qtd + 1):
-        payload = saida[:255]
+        payld = saida[:255]
         saida = saida[255:len(saida)]
-        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tSv, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payload))
+        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
+        print(payld)
+        print ("\n\n")
         conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    
 
 conn.close()  # Fecha socket e conexao TCP

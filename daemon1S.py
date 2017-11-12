@@ -20,7 +20,7 @@ print(addr)
 #fazer checksum
 
 while 1:
-	#RECEBIMENTO DE PACOTE
+    #RECEBIMENTO DE PACOTE
     data = conn.recv(1024)  # Recebe mensagem na connection socket
     if not data: break
 
@@ -47,7 +47,7 @@ while 1:
     opt = pacote[12].decode('utf-8')  # opcoes de execucao
     if(opt != '0'):
        if (("<" in opt) & (">" in opt) & ("|" in opt)):   #ha parametros maliciosos
-            conn.close()   	
+            conn.close()    
        protocol = protocol + " " + opt  # concatena comando e opcoes
 
     #CRIACAO DAS THREADS POR REQUISICAO
@@ -75,10 +75,11 @@ while 1:
 
     #ENVIAR PACOTES COM PEDACOS DO DADO 
     for i in range (0,qtd + 1):
-    	payld = saida[:255]
-    	saida = saida[255:len(saida)]
-    	pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
-    	print(payld)
-    	conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    
+        payld = saida[:255]
+        saida = saida[255:len(saida)]
+        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
+        print(payld)
+        print ("\n\n")
+        conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    
 
 conn.close()  # Fecha socket e conexao TCP
