@@ -5,42 +5,33 @@ import subprocess
 import string
 import io
 import math
+import sys
+import threading
 
 #ESTABELECER CONEXAO TCP
 HOST = ''  # Qualquer host
-PORT = '8001'  # Porta arbitraria
+PORT = '9001'  # Porta arbitraria
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # cria welcomesocket IPV4, TCP
 s.bind((HOST, int(PORT)))  # Aguarda requisicao na welcome socket
 s.listen(1)  # Aguarda requisicao na connection socket
-conn, addr = s.accept()  # Cria connection socket quando recebe requisicao
-print('Connected by ')
-print(addr)
 
-
-#fazer checksum
-
-while 1:
-    #RECEBIMENTO DE PACOTE
+#RECEBIMENTO DE PACOTE
+def receive():   
     data = conn.recv(785)  # Recebe mensagem na connection socket
-    if not data: break
+    if not data: conn.close()
 
     #DESCOMPACTACAO DO CABECALHO 
     pacote = bytes
     pacote = struct.unpack('hhhhhhhhhh255p255p255p', data)
-    print(pacote)
 
     #VERIFICACAO DO COMANDO A SER EXECUTADO
     if pacote[8] == 1:
-        print('Vai executar comando ps')
         protocol = "ps"
     elif pacote[8] == 2:
-        print('Vai executar comando df')
         protocol = "df"
     elif pacote[8] == 3:
-        print('Vai executar comando finger')
         protocol = "finger"
     elif pacote[8] == 4:
-        print('Vai executar comando uptime')
         protocol = "uptime"
 
     #VERIFICACAO DA OPCAO DE EXECUCAO
@@ -50,36 +41,51 @@ while 1:
             conn.close()    
        protocol = protocol + " " + opt  # concatena comando e opcoes
 
-    #CRIACAO DAS THREADS POR REQUISICAO
+    #CRIACAO DO SUBPROCESSO
     proc = subprocess.Popen(protocol, stdout=subprocess.PIPE, shell=True)  # cria subprocesso para executar comando
     (saida, err) = proc.communicate()  # redireciona saida
 
-    qtd = math.ceil(len(saida) / 255)  # teto do tamanho da saida / max de bytes que podem ser enviados
+    #CALCULO DO CHECKSUM
+    totalSum = 0
+    for i in range (0, 10):
+        totalSum += pacote[i]
+    for i in range(10, 13):
+        textoS = pacote[i].decode('utf-8')
+        for i in textoS:
+            totalSum += ord(i)
+    if (not (totalSum & pacote[9])):   #checksum nao confere
+        conn.close()
 
     #MONTAR RESPOSTA
     pacoteB = bytes
     vers = pacote[0]
     ihl = pacote[1]
     tsV = pacote[2]
-    tam = pacote[3]  #tamanho total do pacote
+    tam = pacote[3] + 2
     idt = pacote[4]
     fl = 111 #resposta
     fgoff = pacote[6]
     time = pacote[7] - 1 #decrementa ttl
     prot = pacote[8]
-    hCheck = pacote[9]
-    srcAd = pacote[11]  # inverte source address/destination address
+    hCheck = totalSum
+    srcAd = pacote[11]  #inverte source address/destination address
     dAd = pacote[10]
-    opt = 0
-
+    opt = 0     #zera opcoes de execucao
 
     #ENVIAR PACOTES COM PEDACOS DO DADO 
-    for i in range (0,qtd + 1):
-        payld = saida[:255]
+    while 1:
+        payld = saida[:255]  #quebrar resultado em pedacos de 255
         saida = saida[255:len(saida)]
         pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, idt, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
-        print(payld)
-        print ("\n\n")
-        conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    
+        conn.sendall(pacoteB)  # Envia resposta, resultado da execucao 
+        if not payld: break   
+    conn.close()  # Fecha socket e conexao TCP
 
-conn.close()  # Fecha socket e conexao TCP
+#CRIAR THREAD PARA ACEITAR REQUISICAO
+while 1: 
+    conn, addr = s.accept()  # Cria connection socket quando recebe requisicao
+    try: 
+        threading.Thread(receive(), (conn,))
+    except Exception as exc:
+        raise
+

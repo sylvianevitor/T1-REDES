@@ -16,9 +16,9 @@ form = cgi.FieldStorage()
 
 #Cadastro dos daemons
 HOSTD = '127.0.0.1'
-P1 = '8001'
-P2 = '8002'
-P3 = '8003'
+P1 = '9001'
+P2 = '9002'
+P3 = '9003'
 
 daemon1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,11 +28,9 @@ daemon1.connect((HOSTD, int(P1)))
 daemon2.connect((HOSTD, int(P2)))
 daemon3.connect((HOSTD, int(P3)))
 
-
 #3-Way handshake
-print("webserver.py\n")
+print("<p>")
 
-#Get data from fields
 #ATRIBUTOS DA MAQUINA 1
 cbxM1PS = form.getvalue('maq1_ps')
 cbxM1DF = form.getvalue('maq1_df')
@@ -51,8 +49,7 @@ cbxM3DF = form.getvalue('maq3_df')
 cbxM3FINGER = form.getvalue('maq3_finger')
 cbxM3UPTIME = form.getvalue('maq3_uptime')
 
-
-#Set default fix values
+#Seta valores default
 vers = 2
 ihl = 530
 tSv = 0
@@ -60,19 +57,11 @@ fl = 0
 fgoff = 0
 time = 1
 srcAd = bytes(HOSTD.encode('utf-8'))
-hCheck = 0    # IMPLEMENTAR
 global dAdrss
 global prot
 global opt
 global idt
 global tam
-
-
-def pureAdd(x):
-    c = "."
-    for i in range(0,len(x)):
-        if x[i] == c:
-            x.replace(x[i],"")  #retira . 
 
 def novoPacote(daemon, function, identification):
 
@@ -95,7 +84,6 @@ def novoPacote(daemon, function, identification):
         elif (daemon == 3):
             dAd = P3
             msg = form.getvalue('maq3-ps')
-
 
     elif (function == 2):  # DF
         if (daemon == 1):
@@ -135,12 +123,26 @@ def novoPacote(daemon, function, identification):
     dest = bytes(dAd.encode('utf-8'))
 
     if (msg):
+        print(msg)
         opt = bytes(msg.encode('utf-8'))
     else:
         msg = '0'
         opt = bytes(msg.encode('utf-8'))
 
-    tam = len(msg)  #implementar
+    tam = ihl + 255  
+
+    #CALCULA CHECKSUM
+    totalSum = 0
+    totalSum = vers + ihl + tSv + tam + idt + fl + fgoff + time + prot #soma campos inteiros
+    #soma campos de string 
+    for i in HOSTD:
+        totalSum += ord(i)
+    for i in dAd:
+        totalSum += ord(i)
+    for i in msg:
+        totalSum += ord(i)
+    totalSum = totalSum & 0xffff #inverte os bits
+    hCheck = totalSum
 
     #MONTA PACOTES
     pacote = bytes
@@ -177,63 +179,70 @@ def novoPacote(daemon, function, identification):
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
 
-    # mostrar bonito
+    # CONFIGURACOES HTML
+    print("<p>")
+
     show = resultado.split("\n")
     for i in range (0, len(show)):
-        print (show[i]) <br />
-
-    #print(resultado)
+        tab = show[i].split(" ")
+        for j in range(0, len(tab)):
+            if tab[j]:
+                print(tab[j])
+                print("&nbsp") # identacao
+            else:
+                print("&#8239")  # espaco
+        print("<br>")
+    print("<p>")
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
-    print(' Opcao PS da M1 selecionada:') <br />
+    print(' Opcao PS da M1 selecionada: ps ')
     novoPacote(1,1,11)
 
 if(cbxM1DF):
-    print(' Opcao DF da M1 selecionada:\n')
+    print(' Opcao DF da M1 selecionada: df ')
     novoPacote(1,2,12)
 
 if(cbxM1FINGER):
-    print(' Opcao FINGER da M1 selecionada:\n')
+    print(' Opcao FINGER da M1 selecionada: finger ')
     novoPacote(1,3,13)
 
 if(cbxM1UPTIME):
-    print(' Opcao UPTIME da M1 selecionada:\n')
+    print(' Opcao UPTIME da M1 selecionada: uptime ')
     novoPacote(1,4,14)
-
 
 #CHAMADA DE PROTOCOLOS PARA M2
 if(cbxM2PS):
-    print(' Opcao PS da M2 selecionada:\n')
+    print(' Opcao PS da M2 selecionada: ps ')
     novoPacote(2,1,21)
 
 if(cbxM2DF):
-    print(' Opcao DF da M2 selecionada:\n')
+    print(' Opcao DF da M2 selecionada: df ')
     novoPacote(2,2,22)
 
 if(cbxM2FINGER):
-    print(' Opcao FINGER da M2 selecionada:\n')
+    print(' Opcao FINGER da M2 selecionada: finger ')
     novoPacote(2,3,23)
 
 if(cbxM2UPTIME):
-    print(' Opcao UPTIME da M2 selecionada:\n')
+    print(' Opcao UPTIME da M2 selecionada: uptime ')
     novoPacote(2,4,24)
 
 #CHAMADA DE PROTOCOLOS PARA M3
 if(cbxM3PS):
-    print(' Opcao PS da M3 selecionada:\n')
+    print(' Opcao PS da M3 selecionada: ps ')
     novoPacote(3,1,31)
 
 if(cbxM3DF):
-    print(' Opcao DF da M3 selecionada:\n')
+    print(' Opcao DF da M3 selecionada: df ')
     novoPacote(3,2,32)
 
 if(cbxM3FINGER):
-    print(' Opcao FINGER da M3 selecionada:\n')
+    print(' Opcao FINGER da M3 selecionada: finger ')
     novoPacote(3,3,33)
 
 if(cbxM3UPTIME):
-    print(' Opcao UPTIME da M3 selecionada:\n')
+    print(' Opcao UPTIME da M3 selecionada: uptime ')
     novoPacote(3,4,34)
 
 daemon1.close()
