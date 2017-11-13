@@ -8,7 +8,7 @@ import math
 
 #ESTABELECER CONEXAO TCP
 HOST = ''  # Qualquer host
-PORT = '8003'  # Porta arbitraria
+PORT = '9003'  # Porta arbitraria
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # cria welcomesocket IPV4, TCP
 s.bind((HOST, int(PORT)))  # Aguarda requisicao na welcome socket
 s.listen(1)  # Aguarda requisicao na connection socket
@@ -21,11 +21,12 @@ print(addr)
 
 while 1:
     #RECEBIMENTO DE PACOTE
-    data = conn.recv(785)  # Recebe mensagem na connection socket
-    if not data: break
+    data = conn.recv(1024)  # Recebe mensagem na connection socket
 
-    #DESCOMPACTACAO DO CABECALHO 
-    pacote = bytes
+    if not data:
+        break
+
+    #DESCOMPACTACAO DO CABECALHO
     pacote = struct.unpack('hhhhhhhhhh255p255p255p', data)
     print(pacote)
 
@@ -47,14 +48,16 @@ while 1:
     opt = pacote[12].decode('utf-8')  # opcoes de execucao
     if(opt != '0'):
        if (("<" in opt) & (">" in opt) & ("|" in opt)):   #ha parametros maliciosos
-            conn.close()    
+            conn.close()
        protocol = protocol + " " + opt  # concatena comando e opcoes
 
     #CRIACAO DAS THREADS POR REQUISICAO
-    proc = subprocess.Popen(protocol, stdout=subprocess.PIPE, shell=True)  # cria subprocesso para executar comando
-    (saida, err) = proc.communicate()  # redireciona saida
+    #proc = subprocess.Popen(protocol, stdout=subprocess.PIPE, shell=True)  # cria subprocesso para executar comando
+    #(saida, err) = proc.communicate()  # redireciona saida
 
-    qtd = math.ceil(len(saida) / 255)  # teto do tamanho da saida / max de bytes que podem ser enviados
+    msg = "COMECO esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres esse texto tem 29 caracteres FIM"
+    saida = bytes(msg.encode('utf-8'))
+    print(len(saida))
 
     #MONTAR RESPOSTA
     pacoteB = bytes
@@ -62,8 +65,8 @@ while 1:
     ihl = pacote[1]
     tsV = pacote[2]
     tam = pacote[3]  #tamanho total do pacote
-    idt = pacote[4]
-    fl = 111 #resposta
+    id = pacote[4]
+    fl = 1 #resposta
     fgoff = pacote[6]
     time = pacote[7] - 1 #decrementa ttl
     prot = pacote[8]
@@ -73,13 +76,13 @@ while 1:
     opt = 0
 
 
-    #ENVIAR PACOTES COM PEDACOS DO DADO 
-    for i in range (0,qtd + 1):
+    #ENVIAR PACOTES COM PEDACOS DO DADO
+    while(1):
         payld = saida[:255]
         saida = saida[255:len(saida)]
-        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, idt, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
-        print(payld)
-        print ("\n\n")
-        conn.sendall(pacoteB)  # Envia resposta, resultado da execucao    
+        pacoteB = (struct.pack('hhhhhhhhhh255p255ph255p', vers, ihl, tsV, tam, id, fl, fgoff, time, prot, hCheck, srcAd, dAd, opt, payld))
+        #print(payld)
+        conn.sendall(pacoteB)  # Envia resposta, resultado da execucao
+        if not payld: break
 
 conn.close()  # Fecha socket e conexao TCP

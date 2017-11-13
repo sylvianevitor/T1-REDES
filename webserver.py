@@ -16,13 +16,13 @@ form = cgi.FieldStorage()
 
 #Cadastro dos daemons
 HOSTD = '127.0.0.1'
-P1 = '8001'
-P2 = '8002'
-P3 = '8003'
+P1 = '9001'
+P2 = '9002'
+P3 = '9003'
 
 daemon1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 daemon1.connect((HOSTD, int(P1)))
 daemon2.connect((HOSTD, int(P2)))
@@ -180,13 +180,13 @@ def novoPacote(daemon, function, identification):
     # mostrar bonito
     show = resultado.split("\n")
     for i in range (0, len(show)):
-        print (show[i]) <br />
+        print (show[i] + "<br />")
 
     #print(resultado)
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
-    print(' Opcao PS da M1 selecionada:') <br />
+    print(' Opcao PS da M1 selecionada: <br />')
     novoPacote(1,1,11)
 
 if(cbxM1DF):
