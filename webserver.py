@@ -21,8 +21,8 @@ P2 = '9002'
 P3 = '9003'
 
 daemon1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+daemon2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+daemon3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 daemon1.connect((HOSTD, int(P1)))
 daemon2.connect((HOSTD, int(P2)))
@@ -31,6 +31,7 @@ daemon3.connect((HOSTD, int(P3)))
 
 #3-Way handshake
 print("webserver.py\n")
+print("<p>")
 
 #Get data from fields
 #ATRIBUTOS DA MAQUINA 1
@@ -75,6 +76,8 @@ def pureAdd(x):
             x.replace(x[i],"")  #retira . 
 
 def novoPacote(daemon, function, identification):
+
+    print("<p>")
 
     global prot
     prot = function
@@ -177,16 +180,39 @@ def novoPacote(daemon, function, identification):
             if not resposta[13]: break
             resultado = resultado + resposta[13].decode('utf-8')
 
-    # mostrar bonito
-    show = resultado.split("\n")
-    for i in range (0, len(show)):
-        print (show[i] + "<br />")
 
+    # mostrar bonito
+
+    show = resultado.split("\n")    
+    for i in range (0, len(show)):
+     	tab = show[i].split(" ")
+
+        for j in range(0, len(tab)):
+	    if tab[j]:
+	        print(tab[j])
+		print("&nbsp")
+	    else:
+		print("&#8239")
+
+	print("<br>")
+
+    #print("<table>")
+    #print("<tr>")
+    #print("<th>")
+    #print("</th>")
+    #print("</tr>")
+    #print("</tables>")
+
+
+
+    print("<p>")
     #print(resultado)
 
 #CHAMADA DE PROTOCOLOS PARA M1
 if(cbxM1PS):
-    print(' Opcao PS da M1 selecionada: <br />')
+    print(' Opcao PS da M1 selecionada:\n')
+    print("&nbsp")
+    print('teste')
     novoPacote(1,1,11)
 
 if(cbxM1DF):
